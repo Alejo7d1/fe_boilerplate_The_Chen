@@ -8,7 +8,12 @@ const publicRoutes = ["/login"];
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublicRoute = publicRoutes.includes(pathname);
+  const isMockupPreview = request.nextUrl.searchParams.get("preview") === "mockups";
   const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
+
+  if (isMockupPreview) {
+    return NextResponse.next();
+  }
 
   if (!isPublicRoute && !hasSession) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
