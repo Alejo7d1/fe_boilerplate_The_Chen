@@ -18,6 +18,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+### Backend externo
+
+La aplicación consume una API externa configurada con `API_URL`. No incluye datos ni respuestas simbólicas: sin un backend disponible, el inicio de sesión y el inventario muestran el error correspondiente.
+
+| Método | Endpoint | Respuestas esperadas |
+| --- | --- | --- |
+| `POST` | `/auth/login` | `200` con el token (`token`, `accessToken` o `access_token`), `400`, `401` |
+| `GET` | `/api/equipment` | `200` con las máquinas, `401`, `403` |
+| `PATCH` | `/api/equipment/:id/status` | `200`, `400`, `401`, `403`, `404` |
+
+Cada máquina se espera como `{ id, name, status, reason, updatedAt }`, con `status` en `OPERATIVA`, `EN_MANTENIMIENTO` o `FUERA_DE_SERVICIO`. Los errores se leen de `message`, `error` o `detail`.
+
+La pantalla de administración de máquinas vive en [`/equipment/admin`](app/equipment/admin/page.tsx).
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { apiRequest } from "@/lib/api/client";
 import { createSession, deleteSession } from "@/lib/session";
 
 export type LoginState = {
@@ -13,16 +14,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Llama a la API de autenticación. Devuelve el token si las credenciales son
 // válidas, o null si la API responde 401/403.
 async function authenticate(email: string, password: string) {
-  const apiUrl = process.env.API_URL;
-  if (!apiUrl) {
-    throw new Error("Falta la variable de entorno API_URL.");
-  }
-
-  const res = await fetch(new URL("auth/login", apiUrl.replace(/\/?$/, "/")), {
+  const res = await apiRequest("auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
-    cache: "no-store",
   });
 
   if (res.status === 401 || res.status === 403) {

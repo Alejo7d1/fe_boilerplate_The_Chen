@@ -1,9 +1,16 @@
+import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6">
       <h1 className="text-4xl font-semibold">Hello world</h1>
+      <Link
+        href="/equipment/admin"
+        className="rounded-md border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+      >
+        Administrar equipos
+      </Link>
       <form action={logout}>
         <button
           type="submit"
