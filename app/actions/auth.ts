@@ -1,50 +1,16 @@
+// app/actions/auth.ts
 "use server";
 
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "@/lib/session";
-
-export type LoginState = {
-  error?: string;
-  email?: string;
-};
+import { apiFetch, ApiError } from "@/lib/api";
+import type { LoginRequest, LoginResponse, LoginState } from "@/lib/types/auth";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Llama a la API de autenticación. Devuelve el token si las credenciales son
-// válidas, o null si la API responde 401/403.
-async function authenticate(email: string, password: string) {
-  const apiUrl = process.env.API_URL;
-  if (!apiUrl) {
-    throw new Error("Falta la variable de entorno API_URL.");
-  }
-
-  const res = await fetch(new URL("auth/login", apiUrl.replace(/\/?$/, "/")), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-    cache: "no-store",
-  });
-
-  if (res.status === 401 || res.status === 403) {
-    return null;
-  }
-  if (!res.ok) {
-    throw new Error(`auth/login respondió ${res.status}`);
-  }
-
-  // Ajustar al formato de respuesta real de la API.
-  const data = await res.json();
-  const token: string | undefined =
-    data.token ?? data.accessToken ?? data.access_token;
-  if (!token) {
-    throw new Error("La respuesta de auth/login no incluye un token.");
-  }
-  return token;
-}
-
 export async function login(
   _prevState: LoginState,
-  formData: FormData,
+  formData: FormData
 ): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
@@ -56,20 +22,31 @@ export async function login(
     return { error: "Ingresa un correo válido.", email };
   }
 
-  let token: string | null;
   try {
-    token = await authenticate(email, password);
+    const data = await apiFetch<LoginResponse>("api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password } satisfies LoginRequest),
+      requireAuth: false,
+    });
+
+    const token = data.token ?? data.accessToken;
+    if (!token) {
+      throw new Error("La respuesta de auth/login no incluye un token.");
+    }
+
+    await createSession(token);
   } catch (error) {
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+      return { error: "Correo o contraseña incorrectos.", email };
+    }
     console.error("Error al iniciar sesión:", error);
     return { error: "No se pudo iniciar sesión. Intenta más tarde.", email };
   }
-  if (!token) {
-    return { error: "Correo o contraseña incorrectos.", email };
-  }
 
-  await createSession(token);
+  // Nota: redirect() siempre va fuera del try/catch porque lanza un error interno de Next.js
   redirect("/");
 }
+
 
 export async function logout() {
   await deleteSession();
