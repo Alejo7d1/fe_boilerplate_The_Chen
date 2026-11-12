@@ -48,20 +48,32 @@ Copia `.env.example` a `.env.local` y completa los valores:
 
 ```text
 app/
+  (app)/              Shell autenticado: layout con sidebar + header y página `/`
   actions/auth.ts     Server Actions de inicio y cierre de sesión
   login/              Página y formulario de login
-  layout.tsx          Layout raíz (fuentes, ThemeProvider)
+  layout.tsx          Layout raíz (fuentes, ThemeProvider, TooltipProvider)
   globals.css         Tailwind, tokens de tema y utilidades de shadcn/ui
 components/
-  ui/                 Componentes de shadcn/ui
+  ui/                 Componentes de shadcn/ui (sidebar, dialog, table, sheet, tooltip…)
+  app-header.tsx      Header del dashboard: tema, usuario y cerrar sesión
+  app-sidebar.tsx     Navegación por rol (cliente)
+  confirm-dialog.tsx  Diálogo de confirmación con estado pendiente
+  data-table.tsx      Tabla genérica y responsiva
+  states/             Estados de carga, vacío y error
   theme-provider.tsx  Provider de next-themes
   theme-toggle.tsx    Interruptor claro/oscuro
+docs/
+  api-contracts.md    Contratos de API, rutas de páginas y huecos pendientes
+  testing-strategy.md Estrategia de pruebas y matriz de respuestas HTTP
 lib/
   api.ts              Cliente HTTP y `ApiError`
   api-routes.ts       Rutas del backend centralizadas (`API_ROUTES`)
+  navigation.ts       Entradas del sidebar filtradas por rol
   session.ts          Cookie de sesión: crear, leer y borrar
   utils.ts            Helper `cn` para combinar clases
   types/              Tipos compartidos con el backend
+hooks/
+  use-mobile.ts       Detección de viewport móvil para el sidebar
 proxy.ts              Protección de rutas (convención `proxy` de Next.js)
 ```
 
@@ -74,6 +86,8 @@ proxy.ts              Protección de rutas (convención `proxy` de Next.js)
 - Los errores del backend se muestran en el formulario con un `Alert` destructivo, conservando el correo ingresado.
 
 ## Interfaz
+
+El dashboard vive en el grupo de rutas [`app/(app)`](./app/(app)). Su layout valida que exista la cookie de sesión y monta un sidebar responsive ([`components/app-sidebar.tsx`](./components/app-sidebar.tsx)) con las secciones filtradas por el claim `role` del JWT, más un header con el tema y el cierre de sesión. La navegación se define en [`lib/navigation.ts`](./lib/navigation.ts): las historias aún no implementadas aparecen deshabilitadas con la etiqueta «Pronto».
 
 Los componentes de UI viven en [`components/ui`](./components/ui) y se generan con el CLI de shadcn/ui; la configuración está en [`components.json`](./components.json).
 
@@ -90,14 +104,18 @@ El tema claro/oscuro se administra con `next-themes` en [`components/theme-provi
 | Login y logout con Server Actions y cookie `httpOnly` | ✅ Implementado |
 | Protección de rutas en `proxy.ts` | ✅ Implementado |
 | UI base con shadcn/ui, tema claro/oscuro y diseño responsive | ✅ Implementado |
+| Shell autenticado: sidebar por rol y header | ✅ Implementado |
 | Tipos de autenticación ([`lib/types/auth.ts`](./lib/types/auth.ts)) | ✅ Implementado |
-| Dashboard (`/`) | 🚧 Placeholder ("Hello world" + cerrar sesión) |
-| Tipos de clases, equipamiento, membresías, pagos y entrenadores | 🚧 Archivos vacíos, pendientes de definir |
-| Pruebas automatizadas | 🚧 Sin configurar |
+| Tipos de dominio: membresías, planes, pagos, clases, reservas y entrenadores | 🚧 Base creada; faltan campos por confirmar con Backend |
+| Contratos y estrategia de pruebas ([`docs/`](./docs)) | ✅ Documentados |
+| Dashboard (`/`) | 🚧 Panel informativo; los módulos llegan con cada historia |
+| Pruebas automatizadas | 🚧 Sin configurar (estrategia documentada) |
 
 ## Convenciones
 
 Las decisiones de reestructuración del proyecto se documentan en [`decisiones.md`](./decisiones.md). En resumen: shadcn/ui como base de UI, rutas centralizadas y nombres de páginas y clases en inglés.
+
+Los contratos de API, el mapa de rutas y los huecos pendientes con Backend están en [`docs/api-contracts.md`](./docs/api-contracts.md); la estrategia de pruebas y la matriz de respuestas HTTP, en [`docs/testing-strategy.md`](./docs/testing-strategy.md).
 
 ## Recursos
 
