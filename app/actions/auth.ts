@@ -4,6 +4,7 @@
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "@/lib/session";
 import { apiFetch, ApiError } from "@/lib/api";
+import { API_ROUTES } from "@/lib/api-routes";
 import type { LoginRequest, LoginResponse, LoginState } from "@/lib/types/auth";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -14,6 +15,7 @@ export async function login(
 ): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const remember = formData.get("remember") === "on";
 
   if (!email || !password) {
     return { error: "Ingresa tu correo y contraseña.", email };
@@ -23,7 +25,7 @@ export async function login(
   }
 
   try {
-    const data = await apiFetch<LoginResponse>("api/auth/login", {
+    const data = await apiFetch<LoginResponse>(API_ROUTES.auth.login, {
       method: "POST",
       body: JSON.stringify({ email, password } satisfies LoginRequest),
       requireAuth: false,
@@ -34,7 +36,7 @@ export async function login(
       throw new Error("La respuesta de auth/login no incluye un token.");
     }
 
-    await createSession(token);
+    await createSession(token, { remember });
   } catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
       return { error: "Correo o contraseña incorrectos.", email };

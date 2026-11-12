@@ -12,14 +12,18 @@ export interface SessionData {
   email?: string;
 }
 
-export async function createSession(token: string) {
+export async function createSession(
+  token: string,
+  { remember = true }: { remember?: boolean } = {}
+) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    expires: new Date(Date.now() + SESSION_DURATION_MS),
+    // Sin "expires" la cookie dura hasta cerrar el navegador (sesión no recordada)
+    ...(remember ? { expires: new Date(Date.now() + SESSION_DURATION_MS) } : {}),
   });
 }
 

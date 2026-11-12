@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Chen · Fitness club
 
-## Getting Started
+Frontend del sistema de gestión de **The Chen**, *Fitness club*, construido con Next.js (App Router), React 19, TypeScript y Tailwind CSS v4 sobre componentes de [shadcn/ui](https://ui.shadcn.com).
 
-First, run the development server:
+Hoy el proyecto cubre por completo el flujo de autenticación (inicio y cierre de sesión) y deja preparada la estructura para el dashboard y los módulos de negocio: clases, equipamiento, membresías, pagos y entrenadores.
+
+## Stack
+
+- **Next.js 16.3.6** — App Router, Server Actions y Turbopack
+- **React 19.2** y **TypeScript 5**
+- **Tailwind CSS v4** (`@tailwindcss/postcss`)
+- **shadcn/ui** (primitivas de Radix UI) + **lucide-react** para iconografía
+- **next-themes** para el tema claro/oscuro
+
+## Requisitos
+
+- Node.js `>= 20.9.0`
+- npm
+- Una API backend accesible (ver [Variables de entorno](#variables-de-entorno))
+
+## Puesta en marcha
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La aplicación queda disponible en <http://localhost:3000>. Como aún no hay sesión, `proxy.ts` redirige automáticamente a `/login`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Comando | Descripción |
+| --- | --- |
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Build de producción |
+| `npm run start` | Sirve el build de producción |
+| `npm run lint` | ESLint con `eslint-config-next` |
 
-## Learn More
+## Variables de entorno
 
-To learn more about Next.js, take a look at the following resources:
+Copia `.env.example` a `.env.local` y completa los valores:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Descripción |
+| --- | --- |
+| `API_URL` | URL base del backend que consume [`lib/api.ts`](./lib/api.ts). Los endpoints se resuelven como rutas relativas (por ejemplo `api/auth/login`). |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estructura del proyecto
 
-## Deploy on Vercel
+```text
+app/
+  actions/auth.ts     Server Actions de inicio y cierre de sesión
+  login/              Página y formulario de login
+  layout.tsx          Layout raíz (fuentes, ThemeProvider)
+  globals.css         Tailwind, tokens de tema y utilidades de shadcn/ui
+components/
+  ui/                 Componentes de shadcn/ui
+  theme-provider.tsx  Provider de next-themes
+  theme-toggle.tsx    Interruptor claro/oscuro
+lib/
+  api.ts              Cliente HTTP y `ApiError`
+  api-routes.ts       Rutas del backend centralizadas (`API_ROUTES`)
+  session.ts          Cookie de sesión: crear, leer y borrar
+  utils.ts            Helper `cn` para combinar clases
+  types/              Tipos compartidos con el backend
+proxy.ts              Protección de rutas (convención `proxy` de Next.js)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Autenticación
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [`app/actions/auth.ts`](./app/actions/auth.ts) expone `login` y `logout` como Server Actions.
+- `login` valida correo y contraseña, llama a `POST {API_URL}/api/auth/login` (ruta declarada en [`lib/api-routes.ts`](./lib/api-routes.ts)) y guarda el token en una cookie `httpOnly` desde [`lib/session.ts`](./lib/session.ts).
+- La opción **Mantener la sesión iniciada** decide si la cookie expira a los 7 días o al cerrar el navegador.
+- [`proxy.ts`](./proxy.ts) hace un chequeo optimista de la cookie: sin sesión redirige a `/login`; con sesión, visitar `/login` redirige a `/`.
+- Los errores del backend se muestran en el formulario con un `Alert` destructivo, conservando el correo ingresado.
+
+## Interfaz
+
+Los componentes de UI viven en [`components/ui`](./components/ui) y se generan con el CLI de shadcn/ui; la configuración está en [`components.json`](./components.json).
+
+```bash
+npx shadcn@latest add <componente>
+```
+
+El tema claro/oscuro se administra con `next-themes` en [`components/theme-provider.tsx`](./components/theme-provider.tsx), con `defaultTheme="system"`; el interruptor reutilizable está en [`components/theme-toggle.tsx`](./components/theme-toggle.tsx).
+
+## Estado actual
+
+| Área | Estado |
+| --- | --- |
+| Login y logout con Server Actions y cookie `httpOnly` | ✅ Implementado |
+| Protección de rutas en `proxy.ts` | ✅ Implementado |
+| UI base con shadcn/ui, tema claro/oscuro y diseño responsive | ✅ Implementado |
+| Tipos de autenticación ([`lib/types/auth.ts`](./lib/types/auth.ts)) | ✅ Implementado |
+| Dashboard (`/`) | 🚧 Placeholder ("Hello world" + cerrar sesión) |
+| Tipos de clases, equipamiento, membresías, pagos y entrenadores | 🚧 Archivos vacíos, pendientes de definir |
+| Pruebas automatizadas | 🚧 Sin configurar |
+
+## Convenciones
+
+Las decisiones de reestructuración del proyecto se documentan en [`decisiones.md`](./decisiones.md). En resumen: shadcn/ui como base de UI, rutas centralizadas y nombres de páginas y clases en inglés.
+
+## Recursos
+
+- [Documentación de Next.js](https://nextjs.org/docs)
+- [Documentación de shadcn/ui](https://ui.shadcn.com/docs)
+- [Tailwind CSS v4](https://tailwindcss.com/docs)
