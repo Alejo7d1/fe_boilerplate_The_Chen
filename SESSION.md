@@ -68,6 +68,39 @@ Decisiones tomadas: rutas de página en inglés, sidebar de shadcn/ui, solo el h
 3. `FE-8.1`: vista `/entrenadores/agendar` con selector de entrenador, cuadrícula de 14 días y modal de confirmación.
 4. `FE-8.2`: integración de entrenadores, disponibilidad y `POST /api/personal-sessions`, manejando `403` por membresía vencida, `409` por conflicto y retiro del bloque reservado.
 
+## Estado de implementación (Fases 1 y 2)
+
+Ambas fases están implementadas. Navegación habilitada para las 6 rutas; H7 y H8 siguen como «Pronto».
+
+| Historia | Ruta | Pantalla | Integración (Server Action) |
+| --- | --- | --- | --- |
+| H1 | `/membership` | `app/(app)/membership/page.tsx`, `components/membership/membership-summary.tsx` | `GET /api/memberships/me` |
+| H2 | `/membership/purchase` | `app/(app)/membership/purchase/page.tsx`, `components/memberships/purchase-form.tsx` | `app/actions/memberships.ts` |
+| H3 | `/admin/plans` | `app/(app)/admin/plans/page.tsx`, `components/plans/plans-table.tsx`, `plan-dialog.tsx` | `app/actions/plans.ts` |
+| H4 | `/classes/book` | `app/(app)/classes/book/page.tsx`, `components/classes/booking-board.tsx`, `reserve-button.tsx` | `reserveSeatAction` en `app/actions/classes.ts` |
+| H5 | `/my-reservations` | `app/(app)/my-reservations/page.tsx`, `components/reservations/reservations-table.tsx` | `app/actions/reservations.ts` |
+| H6 | `/admin/classes` | `app/(app)/admin/classes/page.tsx`, `components/classes/admin-classes-table.tsx`, `class-dialog.tsx`, `cancel-class-dialog.tsx` | `saveClassAction`, `cancelClassAction` |
+
+Transversal añadido en esta entrega:
+
+| Artefacto | Ubicación |
+| --- | --- |
+| Adaptadores de contrato por dominio (normalizan y lanzan `ContractError`) | [`lib/api/`](./lib/api) + [`lib/api/normalize.ts`](./lib/api/normalize.ts) |
+| Guard de rol para páginas y Server Actions | [`lib/auth-guard.ts`](./lib/auth-guard.ts) |
+| Formato (`es-GT`/`GTQ`), ventana de días y tonos de estado | [`lib/format.ts`](./lib/format.ts), [`lib/date-range.ts`](./lib/date-range.ts), [`lib/status.ts`](./lib/status.ts) |
+| Toaster de sonner y primitivas nuevas (`select`, `tabs`, `switch`, `dropdown-menu`, `popover`, `calendar`, `command`, `sonner`) | [`app/layout.tsx`](./app/layout.tsx), [`components/ui/`](./components/ui) |
+| Reintento de carga desde Server Components y cabecera de página | [`components/states/retry-error.tsx`](./components/states/retry-error.tsx), [`components/page-header.tsx`](./components/page-header.tsx) |
+
+Verificación aplicada: `npm run lint` y `npm run build`. Sin pruebas automatizadas (decisión de Fase 0); la matriz HTTP de [`docs/testing-strategy.md`](./docs/testing-strategy.md) se valida a mano por PR con el backend de pruebas.
+
+### Fuera de H1-H8: alta de miembros
+
+El sprint no incluye el alta de miembros, pero sin ella no se puede comprar una membresía a un miembro que no venga en los datos semilla. Se agregó el módulo mínimo:
+
+- `/admin/members` (`RECEPCION_ADMIN`): padrón con búsqueda y diálogo «Nuevo miembro» (nombre, correo, contraseña inicial) sobre `POST /api/users`.
+- Se reutiliza `GET /api/users?role=MIEMBRO&search=` para el listado y para el selector de la compra.
+- Este módulo debe registrarse en Jira como alcance adicional o retirarse si el alta la hará Backend/otro equipo.
+
 ## Dependencias y reglas de priorización
 
 - Cada subtarea de integración (`FE-2.2`, `FE-3.2`, `FE-5.2`, `FE-6.2`, `FE-7.2`, `FE-8.2`) depende de su pantalla base y del contrato Backend correspondiente.

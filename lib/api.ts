@@ -40,5 +40,11 @@ export async function apiFetch<T>(
     throw new ApiError(res.status, errorData.message || `Error HTTP ${res.status}`);
   }
 
-  return res.json();
+  // 204 (p. ej. DELETE de reservas) y respuestas sin cuerpo no se pueden parsear como JSON.
+  if (res.status === 204) return undefined as unknown as T;
+
+  const body = await res.text();
+  if (!body.trim()) return undefined as unknown as T;
+
+  return JSON.parse(body) as T;
 }

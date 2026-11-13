@@ -4,19 +4,19 @@
 // Contrato pendiente de confirmar con Backend: ver docs/api-contracts.md.
 
 import type { EntityId, IsoDate } from "@/lib/types/common";
-import type { MembershipPlan } from "@/lib/types/plans";
 
 /**
- * Membresía del miembro autenticado.
- * Campos tomados de FE-1.1: plan, estado, vencimiento y clases restantes.
+ * Membresía del miembro autenticado (contrato de `GET /api/memberships/me`).
+ * El backend la devuelve plana: `planId` + `planName` resuelto.
  */
 export interface Membership {
   id: EntityId;
-  plan: Pick<MembershipPlan, "id" | "name">;
-  /** TODO(contract): el backend aún no documenta los valores de estado. */
+  planId: EntityId;
+  planName: string;
+  /** Valores observados: `Vigente`, `Vencida`, `Sin Membresía`. */
   status: string;
-  /** Fecha de vencimiento de la membresía. TODO(contract): nombre del campo. */
-  expiresAt: IsoDate;
+  /** Fecha de vencimiento en formato `YYYY-MM-DD`. */
+  endDate: IsoDate;
   /** Clases restantes; `null` cuando el plan es ilimitado. */
   remainingClasses: number | null;
 }

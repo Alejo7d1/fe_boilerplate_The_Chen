@@ -11,6 +11,15 @@ export const API_ROUTES = {
     me: "/api/memberships/me",
     purchase: "/api/memberships/purchase",
   },
+  members: {
+    /**
+     * Búsqueda de miembros para la compra de membresía (H2).
+     * `GET /api/users?role=MIEMBRO&search=<texto>` · solo `RECEPCION_ADMIN`.
+     */
+    search: "/api/users",
+    /** Alta de miembro. La UI la restringe a `RECEPCION_ADMIN`. */
+    create: "/api/users",
+  },
   plans: {
     list: "/api/plans",
     create: "/api/plans",

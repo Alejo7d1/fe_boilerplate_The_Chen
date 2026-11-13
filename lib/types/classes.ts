@@ -5,26 +5,26 @@
 // Contrato pendiente de confirmar con Backend: ver docs/api-contracts.md.
 
 import type { EntityId, IsoDate, IsoTime } from "@/lib/types/common";
-import type { TrainerSummary } from "@/lib/types/trainers";
 
 /** Valores documentados en BE-4.1 (`Activa`) y DB-5.1 (`Cancelada`). */
 export type ReservationStatus = "Activa" | "Cancelada";
 
 /**
- * Sesión de clase programada.
- * Campos tomados de FE-4.1 (cupos calculados) y FE-6.1 (formulario administrativo).
+ * Sesión de clase (contrato de `GET /api/class-sessions`).
+ * `availableSpots` lo calcula el backend; `trainerName` viene resuelto.
  */
 export interface ClassSession {
   id: EntityId;
   name: string;
-  trainer: TrainerSummary;
+  trainerId: EntityId;
+  trainerName: string;
   date: IsoDate;
   startTime: IsoTime;
-  /** Duración en minutos. TODO(contract): confirmar si el backend envía la hora de fin. */
   durationMinutes: number;
   maxCapacity: number;
-  /** Reservas activas: los cupos libres son `maxCapacity - activeReservations`. */
-  activeReservations: number;
+  availableSpots: number;
+  /** Valores observados: `Programada`, `Cancelada`, `Finalizada`. */
+  status: string;
 }
 
 export interface CreateClassRequest {
@@ -51,12 +51,14 @@ export interface ReserveClassSeatResponse {
   message?: string;
 }
 
-/** Reserva del miembro autenticado (H5). */
+/** Reserva del miembro autenticado (contrato de `GET /api/reservations/me`). */
 export interface ClassReservation {
   id: EntityId;
-  classSession: Pick<ClassSession, "id" | "name" | "date" | "startTime">;
+  classId: EntityId;
+  name: string;
+  date: IsoDate;
+  startTime: IsoTime;
   status: ReservationStatus;
-  /** DB-5.1: fecha y motivo se registran solo cuando la reserva se cancela. */
+  /** DB-5.1: se registra solo cuando la reserva se cancela. */
   cancelledAt?: IsoDate;
-  cancellationReason?: string;
 }

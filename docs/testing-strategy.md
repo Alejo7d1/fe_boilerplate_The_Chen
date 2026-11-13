@@ -44,7 +44,7 @@ La misma matriz debe cubrirse en las pruebas de integración de cada historia.
 | --- | --- | --- | --- |
 | `201` | Reserva creada, bloque de disponibilidad registrado, sesión personal agendada, plan creado | H2, H3, H4, H6, H7, H8 | Actualiza el listado o la cuadrícula sin recargar y muestra mensaje de éxito |
 | `400` | Datos inválidos: fecha pasada, cupo fuera de rango, tarjeta rechazada | H2, H3, H6, H7, H8 | Mensaje claro en el formulario y conserva lo ingresado |
-| `401` | Token ausente o expirado | Todas | Redirige a `/login` |
+| `401` | Token ausente o expirado | Todas | Sin cookie o con JWT vencido, el proxy redirige a `/login` y borra la cookie. Si el backend responde `401` con un token aún vigente, la pantalla muestra una alerta con el mensaje del backend (no redirige, para no romper el flujo). |
 | `403` | Rol no autorizado, membresía vencida, recurso de otro usuario | H1, H2, H4, H5, H6, H7, H8 | Alerta con el mensaje del backend; no rompe la pantalla |
 | `404` | Reserva o clase inexistente al cancelar | H5, H6 | Mensaje de no encontrado y refresco del listado |
 | `409` | Cupo agotado, reserva duplicada, bloque cruzado, pago ya realizado, conflicto de horario | H2, H4, H5, H6, H7, H8 | Alerta con el mensaje del backend y refresco del estado |
