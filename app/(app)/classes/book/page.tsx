@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { CalendarDays, Users } from "lucide-react";
 
 import { listClassSessions } from "@/lib/api/classes";
 import { describeApiError, logActionError } from "@/lib/actions/errors";
@@ -8,6 +10,7 @@ import { BookingBoard } from "@/components/classes/booking-board";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/states/empty-state";
 import { RetryError } from "@/components/states/retry-error";
+import { Button } from "@/components/ui/button";
 import type { ClassSession } from "@/lib/types/classes";
 
 export const metadata: Metadata = { title: "Reservar clase" };
@@ -35,15 +38,26 @@ export default async function BookClassPage() {
     <>
       <PageHeader
         title="Reservar clase"
-        description="Consulta los próximos 7 días y reserva un cupo en la clase que prefieras."
+        description="Consulta los próximos 7 días, elige el horario que te acomode y aparta tu cupo."
       />
       {error ? (
         <RetryError description={error} />
       ) : sessions.length === 0 ? (
-        <EmptyState
-          title="No hay clases programadas"
-          description="No hay sesiones en los próximos 7 días. Vuelve a intentarlo más tarde."
-        />
+        <div className="bg-card/40 rounded-xl border border-dashed p-4">
+          <EmptyState
+            title="No hay clases esta semana"
+            description="En los próximos 7 días no hay sesiones publicadas. Mientras tanto puedes agendar una sesión personal con tu entrenador."
+            icon={CalendarDays}
+            action={
+              <Button asChild size="sm" variant="outline">
+                <Link href="/trainers/book">
+                  <Users />
+                  Sesión personal
+                </Link>
+              </Button>
+            }
+          />
+        </div>
       ) : (
         <BookingBoard sessions={sessions} days={days} />
       )}

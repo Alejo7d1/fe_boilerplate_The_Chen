@@ -41,6 +41,9 @@ export const API_ROUTES = {
     list: "/api/trainers",
     availability: (id: string) => `/api/trainers/${id}/availability` as const,
     createAvailability: "/api/trainer-availability",
+    /** H7 · Baja de un bloque de disponibilidad (subtarea `BE-7.3`). */
+    removeAvailability: (id: string) =>
+      `/api/trainer-availability/${id}` as const,
     bookPersonalSession: "/api/personal-sessions",
   },
   access: {

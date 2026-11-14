@@ -87,14 +87,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/trainer/availability",
     icon: CalendarClock,
     roles: ["ENTRENADOR"],
-    available: false,
+    available: true,
   },
   {
     title: "Sesión personal",
     href: "/trainers/book",
     icon: Users,
     roles: ["MIEMBRO"],
-    available: false,
+    available: true,
   },
 ] as const;
 

@@ -74,6 +74,24 @@ export function formatClassesRemaining(remaining: number | null): string {
   return remaining === null ? "Ilimitadas" : String(remaining);
 }
 
+/** «viernes, 13 de noviembre» → «Viernes, 13 de noviembre». */
+export function capitalizeSentence(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+/**
+ * Nombre corto derivado del correo de sesión: `ana.lopez@…` → «Ana Lopez».
+ * Devuelve `null` cuando el correo no permite derivar nada legible.
+ */
+export function nameFromEmail(email?: string): string | null {
+  const localPart = email?.split("@")[0];
+  const words = localPart?.split(/[._-]+/).filter(Boolean) ?? [];
+  if (words.length === 0) return null;
+  return words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export function daysUntil(iso: IsoDate): number {
   const target = isoToDate(iso).getTime();
   const today = isoToDate(todayIso()).getTime();

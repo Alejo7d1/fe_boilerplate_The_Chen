@@ -31,11 +31,13 @@ export function AppSidebar({ role }: { role?: UserRole }) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg" tooltip="The Chen">
               <Link href="/">
-                <span className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg">
+                <span className="from-primary to-info text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br shadow-sm">
                   <Dumbbell className="size-4" />
                 </span>
                 <span className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-heading font-semibold">The Chen</span>
+                  <span className="font-heading from-primary to-info bg-linear-to-r bg-clip-text font-semibold text-transparent">
+                    The Chen
+                  </span>
                   <span className="text-muted-foreground text-xs">
                     Fitness club
                   </span>
@@ -64,6 +66,7 @@ export function AppSidebar({ role }: { role?: UserRole }) {
                       isActive={pathname === item.href}
                       disabled={!item.available}
                       tooltip={item.title}
+                      className="data-active:font-medium data-active:[&_svg]:text-sidebar-primary"
                     >
                       {item.available ? (
                         <Link href={item.href}>

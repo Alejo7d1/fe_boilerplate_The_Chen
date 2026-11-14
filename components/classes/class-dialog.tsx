@@ -31,16 +31,12 @@ import { Spinner } from "@/components/ui/spinner";
 import { IDLE_FORM_STATE, type FormState } from "@/lib/actions/form-state";
 import { dateToIso, isoToLocalDate, todayIso } from "@/lib/date-range";
 import { formatDate } from "@/lib/format";
+import { timeOptions } from "@/lib/schedule";
 import type { ClassSession } from "@/lib/types/classes";
 import type { TrainerSummary } from "@/lib/types/trainers";
 
 /** Horario de operación del club: 06:00 a 21:00 en bloques de 30 minutos. */
-const TIME_OPTIONS = Array.from({ length: 31 }, (_, index) => {
-  const totalMinutes = 6 * 60 + index * 30;
-  const hours = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
-  const minutes = String(totalMinutes % 60).padStart(2, "0");
-  return `${hours}:${minutes}`;
-});
+const TIME_OPTIONS = timeOptions(30);
 
 const DURATION_OPTIONS = [30, 45, 60, 75, 90, 120];
 

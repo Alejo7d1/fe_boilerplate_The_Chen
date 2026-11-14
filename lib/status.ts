@@ -51,3 +51,19 @@ export function classTone(status: string): BadgeTone {
   if (value.includes("finaliz")) return "secondary";
   return "default";
 }
+
+/**
+ * Estado de un bloque de disponibilidad. `null` significa que el backend no
+ * informó el dato: se muestra «—» y no se asume que esté libre.
+ */
+export function availabilityLabel(isBooked: boolean | null): string {
+  if (isBooked === true) return "Reservado";
+  if (isBooked === false) return "Libre";
+  return "—";
+}
+
+export function availabilityTone(isBooked: boolean | null): BadgeTone {
+  if (isBooked === true) return "secondary";
+  if (isBooked === false) return "default";
+  return "outline";
+}

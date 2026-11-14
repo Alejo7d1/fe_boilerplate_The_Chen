@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-El proyecto **no tiene herramientas de pruebas instaladas**. En la Fase 0 la estrategia se documenta únicamente; no se agregaron dependencias ni scripts.
+El proyecto **no tiene herramientas de pruebas instaladas**.
 
 Los criterios de terminado de cada subtarea del sprint exigen pruebas de integración del componente con la API, por lo que la instalación se hará al iniciar la primera historia que consuma endpoints.
 

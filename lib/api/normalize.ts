@@ -129,6 +129,23 @@ export function readBoolean(
   throw missing(context, keys);
 }
 
+/**
+ * Booleano opcional: `undefined` cuando el campo no viene, sin lanzar error ni
+ * asumir un valor. Los consumidores lo traducen a `null` («no informado»).
+ */
+export function readOptionalBoolean(
+  source: Recordish,
+  keys: readonly string[]
+): boolean | undefined {
+  const value = rawPick(source, keys);
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (/^(true|1|si|sí)$/i.test(value.trim())) return true;
+    if (/^(false|0|no)$/i.test(value.trim())) return false;
+  }
+  return undefined;
+}
+
 /** Acepta `YYYY-MM-DD` o un ISO con hora y devuelve solo la fecha. */
 export function readIsoDate(
   source: Recordish,
@@ -165,6 +182,17 @@ export function readIsoTime(
     if (match) return `${match[1].padStart(2, "0")}:${match[2]}`;
   }
   throw missing(context, keys);
+}
+
+/** Hora opcional en formato `HH:mm`; `undefined` cuando el campo no viene. */
+export function readOptionalIsoTime(
+  source: Recordish,
+  keys: readonly string[]
+): IsoTime | undefined {
+  const value = pick(source, keys);
+  if (typeof value !== "string") return undefined;
+  const match = TIME_PREFIX.exec(value);
+  return match ? `${match[1].padStart(2, "0")}:${match[2]}` : undefined;
 }
 
 /**

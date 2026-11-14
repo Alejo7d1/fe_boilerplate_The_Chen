@@ -1,40 +1,118 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  CalendarDays,
+  CalendarPlus,
+  LayoutDashboard,
+  UserPlus,
+} from "lucide-react";
+
+import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
+import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { MemberDashboard } from "@/components/dashboard/member-dashboard";
+import { QuickLinks } from "@/components/dashboard/quick-links";
+import { SectionHeading } from "@/components/dashboard/section-heading";
+import { TrainerDashboard } from "@/components/dashboard/trainer-dashboard";
+import { ErrorState } from "@/components/states/error-state";
+import { Button } from "@/components/ui/button";
 import { getSessionData } from "@/lib/session";
+import type { UserRole } from "@/lib/types/auth";
+
+export const metadata: Metadata = { title: "Panel" };
+
+const ROLE_CONTENT: Record<UserRole, { label: string; tagline: string }> = {
+  MIEMBRO: {
+    label: "Miembro",
+    tagline:
+      "Revisa el estado de tu membresía, tus próximas reservas y las clases con cupo disponible.",
+  },
+  ENTRENADOR: {
+    label: "Entrenador",
+    tagline:
+      "Consulta tus bloques de disponibilidad y las sesiones que ya tienes agendadas.",
+  },
+  RECEPCION_ADMIN: {
+    label: "Recepción / Administración",
+    tagline:
+      "Sigue el padrón de miembros, la agenda de clases y el catálogo de planes del club.",
+  },
+};
 
 export default async function DashboardPage() {
   const session = await getSessionData();
+  const role = session?.role;
+
+  // El miembro usa una vista propia, sin hero de métricas ni atajos: el menú
+  // lateral ya cubre la navegación.
+  if (role === "MIEMBRO") {
+    return <MemberDashboard email={session?.email} />;
+  }
+
+  const content = role ? ROLE_CONTENT[role] : null;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <DashboardHero
+        email={session?.email}
+        roleLabel={content?.label}
+        tagline={
+          content?.tagline ??
+          "Tu sesión no incluye un rol válido, así que no hay módulos habilitados."
+        }
+        actions={role ? <RoleActions role={role} /> : null}
+      />
+
+      {role === "RECEPCION_ADMIN" ? (
+        <AdminDashboard />
+      ) : role === "ENTRENADOR" ? (
+        <TrainerDashboard userId={session?.userId} />
+      ) : (
+        <ErrorState
+          title="Rol no identificado"
+          description="El token de sesión no incluye el claim «role». Vuelve a iniciar sesión o pide a administración que revise tus permisos."
+        />
+      )}
+
+      {role ? (
+        <section className="flex flex-col gap-3">
+          <SectionHeading
+            title="Accesos rápidos"
+            description="Módulos habilitados para tu rol."
+            icon={LayoutDashboard}
+          />
+          <QuickLinks role={role} />
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+function RoleActions({ role }: { role: UserRole }) {
+  if (role === "ENTRENADOR") {
+    return (
+      <Button asChild size="sm">
+        <Link href="/trainer/availability">
+          <CalendarPlus />
+          Mi disponibilidad
+        </Link>
+      </Button>
+    );
+  }
 
   return (
     <>
-      <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-2xl font-semibold">Panel</h1>
-        <p className="text-muted-foreground text-sm">
-          Bienvenido a The Chen. Usa el menú lateral para acceder a los módulos
-          del sprint.
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sesión actual</CardTitle>
-          </CardHeader>
-          <CardContent className="text-muted-foreground flex flex-col gap-1 text-sm">
-            <span>Correo: {session?.email ?? "No disponible en el token"}</span>
-            <span>Rol: {session?.role ?? "No disponible en el token"}</span>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Módulos del sprint</CardTitle>
-          </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
-            Las secciones marcadas como «Pronto» en el menú se habilitan cuando
-            se implementa su historia en la fase correspondiente.
-          </CardContent>
-        </Card>
-      </div>
+      <Button asChild size="sm">
+        <Link href="/admin/members">
+          <UserPlus />
+          Registrar miembro
+        </Link>
+      </Button>
+      <Button asChild size="sm" variant="outline">
+        <Link href="/admin/classes">
+          <CalendarDays />
+          Programar clase
+        </Link>
+      </Button>
     </>
   );
 }

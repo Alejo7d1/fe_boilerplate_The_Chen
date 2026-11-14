@@ -12,9 +12,14 @@ import type { ClassSession } from "@/lib/types/classes";
 export interface ReserveButtonProps {
   session: ClassSession;
   freeSeats: number;
+  className?: string;
 }
 
-export function ReserveButton({ session, freeSeats }: ReserveButtonProps) {
+export function ReserveButton({
+  session,
+  freeSeats,
+  className,
+}: ReserveButtonProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [submitting, setSubmitting] = useState(false);
@@ -55,6 +60,7 @@ export function ReserveButton({ session, freeSeats }: ReserveButtonProps) {
       onClick={handleReserve}
       disabled={disabled}
       aria-busy={pending || submitting}
+      className={className}
     >
       {pending || submitting ? <Spinner aria-label="Reservando" /> : null}
       {soldOut ? "Sin cupos" : "Reservar"}

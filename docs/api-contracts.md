@@ -43,6 +43,7 @@ La navegación se define en [`lib/navigation.ts`](../lib/navigation.ts). Una ent
 | Entrenadores | `GET` | `/api/trainers` | Autenticados |
 | Entrenadores | `GET` | `/api/trainers/:id/availability` | Autenticados |
 | Entrenadores | `POST` | `/api/trainer-availability` | `ENTRENADOR` |
+| Entrenadores | `DELETE` | `/api/trainer-availability/:id` | `ENTRENADOR` |
 | Entrenadores | `POST` | `/api/personal-sessions` | `MIEMBRO` |
 | Pagos | `GET` | `/api/charges/pending` | `RECEPCION_ADMIN` |
 | Pagos | `POST` | `/api/payments/process` | `MIEMBRO` |
@@ -59,7 +60,7 @@ La navegación se define en [`lib/navigation.ts`](../lib/navigation.ts). Una ent
 | Entrenadores y disponibilidad | [`lib/types/trainers.ts`](../lib/types/trainers.ts) |
 | Pagos | [`lib/types/payments.ts`](../lib/types/payments.ts) |
 
-## Capa de adaptadores (Fases 1 y 2)
+## Capa de adaptadores (Fases 1, 2 y 3)
 
 Las páginas y las Server Actions **no** llaman a `apiFetch` directamente: lo hacen a través de
 [`lib/api/`](../lib/api), un módulo por dominio (`memberships`, `plans`, `classes`, `reservations`,
@@ -111,11 +112,6 @@ Estados observados: membresía `Vigente` / `Vencida` / `Sin Membresía`; clase `
 5. `PATCH /api/plans/:id/status` interpreta `{ active }`; antes ignoraba el cuerpo y dejaba el plan siempre activo.
 6. `POST`/`PUT /api/plans` normalizan `durationDays` y `classesIncluded` al esquema interno.
 7. Los datos de ejemplo usan fechas relativas para que las clases caigan dentro de los próximos 7 días.
-
-## Pendiente para fases posteriores
-
-- H7: `API_ROUTES` solo declara `POST /api/trainer-availability`; el backend también expone `GET /api/trainers/:id/availability`, que conviene agregar como ruta nombrada.
-- Pagos (`/api/charges/pending`, `/api/payments/process`): fuera de las Fases 1 y 2.
 
 ## Estado de la autenticación
 
