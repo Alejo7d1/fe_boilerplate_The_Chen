@@ -96,6 +96,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     roles: ["MIEMBRO"],
     available: true,
   },
+  {
+    title: "Check-in",
+    href: "/admin/check-in",
+    icon: ClipboardList,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
 ] as const;
 
 /**
