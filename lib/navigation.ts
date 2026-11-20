@@ -8,10 +8,12 @@ import {
   CalendarDays,
   ClipboardList,
   CreditCard,
+  Dumbbell,
   LayoutDashboard,
   Tags,
   UserPlus,
   Users,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,6 +32,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     title: "Panel",
     href: "/",
     icon: LayoutDashboard,
+    roles: ["MIEMBRO", "ENTRENADOR", "RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Equipos",
+    href: "/equipment",
+    icon: Dumbbell,
     roles: ["MIEMBRO", "ENTRENADOR", "RECEPCION_ADMIN"],
     available: true,
   },
@@ -83,6 +92,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     available: true,
   },
   {
+    title: "Máquinas",
+    href: "/admin/equipment",
+    icon: Wrench,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
     title: "Mi disponibilidad",
     href: "/trainer/availability",
     icon: CalendarClock,
@@ -94,6 +110,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/trainers/book",
     icon: Users,
     roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Check-in",
+    href: "/admin/check-in",
+    icon: ClipboardList,
+    roles: ["RECEPCION_ADMIN"],
     available: true,
   },
 ] as const;

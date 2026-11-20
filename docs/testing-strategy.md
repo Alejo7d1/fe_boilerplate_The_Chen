@@ -2,11 +2,19 @@
 
 ## Estado actual
 
-El proyecto **no tiene herramientas de pruebas instaladas**.
+El proyecto **ya tiene herramientas de pruebas instaladas** (`vitest`, `jsdom`,
+`@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`).
 
-Los criterios de terminado de cada subtarea del sprint exigen pruebas de integración del componente con la API, por lo que la instalación se hará al iniciar la primera historia que consuma endpoints.
+```bash
+npm test        # vitest run
+npm run test:watch
+```
 
-## Stack propuesto
+La configuración vive en [`vitest.config.mts`](../vitest.config.mts) y el setup en
+[`vitest.setup.ts`](../vitest.setup.ts). Los archivos de prueba se descubren con el patrón
+`**/*.test.{ts,tsx}`.
+
+## Stack
 
 | Paquete | Uso |
 | --- | --- |
@@ -18,7 +26,7 @@ Los criterios de terminado de cada subtarea del sprint exigen pruebas de integra
 | `@testing-library/user-event` | Interacción de usuario |
 | `@testing-library/jest-dom` | Matchers de DOM |
 
-Scripts previstos en [`package.json`](../package.json):
+Scripts en [`package.json`](../package.json):
 
 ```json
 {

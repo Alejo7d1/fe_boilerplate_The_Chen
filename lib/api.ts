@@ -7,6 +7,21 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * El backend de pruebas responde `{ "error": "..." }`; otros entornos usan
+ * `message`. Se aceptan ambos para no perder el mensaje original.
+ */
+export function errorMessageFrom(body: unknown, status: number): string {
+  if (body && typeof body === "object") {
+    const record = body as Record<string, unknown>;
+    for (const key of ["message", "error", "detail"]) {
+      const value = record[key];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+  }
+  return `Error HTTP ${status}`;
+}
+
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit & { requireAuth?: boolean } = {}
@@ -37,7 +52,7 @@ export async function apiFetch<T>(
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new ApiError(res.status, errorData.message || `Error HTTP ${res.status}`);
+    throw new ApiError(res.status, errorMessageFrom(errorData, res.status));
   }
 
   // 204 (p. ej. DELETE de reservas) y respuestas sin cuerpo no se pueden parsear como JSON.

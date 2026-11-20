@@ -67,3 +67,12 @@ export function availabilityTone(isBooked: boolean | null): BadgeTone {
   if (isBooked === false) return "default";
   return "outline";
 }
+
+/** Estados de una máquina: `Operativa`, `En Mantenimiento`, `Fuera de Servicio`. */
+export function equipmentTone(status: string): BadgeTone {
+  const value = normalize(status);
+  if (value.includes("mantenimiento")) return "secondary";
+  if (value.includes("fuera")) return "destructive";
+  if (value.includes("operativa")) return "default";
+  return "outline";
+}
