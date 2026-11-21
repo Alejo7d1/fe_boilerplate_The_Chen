@@ -1,4 +1,4 @@
-﻿# Plan · Frontend pendiente (H9 – H21)
+# Plan · Frontend pendiente (H9 – H21)
 
 Estado del trabajo sobre el backlog `TSK` (proyecto The_Chen) para cerrar todo el FE.
 Última actualización: 2026-11-20.
