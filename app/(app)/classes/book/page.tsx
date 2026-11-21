@@ -3,8 +3,10 @@ import Link from "next/link";
 import { CalendarDays, Users } from "lucide-react";
 
 import { listClassSessions } from "@/lib/api/classes";
+import { listMyReservations } from "@/lib/api/reservations";
 import { describeApiError, logActionError } from "@/lib/actions/errors";
 import { requireRole } from "@/lib/auth-guard";
+import { activeReservedSessionIds, isSessionBookable } from "@/lib/classes";
 import { nextDays } from "@/lib/date-range";
 import { BookingBoard } from "@/components/classes/booking-board";
 import { PageHeader } from "@/components/page-header";
@@ -23,15 +25,29 @@ export default async function BookClassPage() {
   const days = nextDays(WINDOW_DAYS);
 
   let sessions: ClassSession[] = [];
+  let reservedSessionIds: string[] = [];
   let error: string | null = null;
 
   try {
     const all = await listClassSessions();
     const window = new Set(days);
-    sessions = all.filter((session) => window.has(session.date));
+    sessions = all.filter(
+      (session) => window.has(session.date) && isSessionBookable(session)
+    );
   } catch (cause) {
     logActionError("GET /api/class-sessions", cause);
     error = describeApiError(cause, "No pudimos cargar las clases disponibles.");
+  }
+
+  if (!error) {
+    try {
+      reservedSessionIds = [
+        ...activeReservedSessionIds(await listMyReservations()),
+      ];
+    } catch (cause) {
+      // Sin reservas solo se pierde el estado «Ya reservado»; la agenda sigue disponible.
+      logActionError("GET /api/reservations/me", cause);
+    }
   }
 
   return (
@@ -59,7 +75,11 @@ export default async function BookClassPage() {
           />
         </div>
       ) : (
-        <BookingBoard sessions={sessions} days={days} />
+        <BookingBoard
+          sessions={sessions}
+          days={days}
+          reservedSessionIds={reservedSessionIds}
+        />
       )}
     </>
   );

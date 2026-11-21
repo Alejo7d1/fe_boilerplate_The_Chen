@@ -1,6 +1,6 @@
-# The Chen · Fitness club
+# Chen Fitness Club
 
-Frontend del sistema de gestión de **The Chen**, *Fitness club*, construido con Next.js (App Router), React 19, TypeScript y Tailwind CSS v4 sobre componentes de [shadcn/ui](https://ui.shadcn.com).
+Frontend del sistema de gestión de **Chen Fitness Club**, construido con Next.js (App Router), React 19, TypeScript y Tailwind CSS v4 sobre componentes de [shadcn/ui](https://ui.shadcn.com).
 
 Hoy el proyecto cubre por completo el flujo de autenticación (inicio y cierre de sesión) y deja preparada la estructura para el dashboard y los módulos de negocio: clases, equipamiento, membresías, pagos y entrenadores.
 
@@ -25,24 +25,33 @@ npm install
 npm run dev
 ```
 
-La aplicación queda disponible en <http://localhost:3000>. Como aún no hay sesión, `proxy.ts` redirige automáticamente a `/login`.
+La aplicación queda disponible en <http://localhost:3000> (o en el puerto que definas en `FE_PORT`). Como aún no hay sesión, `proxy.ts` redirige automáticamente a `/login`.
 
 ### Scripts
 
 | Comando | Descripción |
 | --- | --- |
-| `npm run dev` | Servidor de desarrollo |
+| `npm run dev` | Servidor de desarrollo en `FE_PORT` (por defecto 3000) |
 | `npm run build` | Build de producción |
-| `npm run start` | Sirve el build de producción |
+| `npm run start` | Sirve el build de producción en `FE_PORT` |
 | `npm run lint` | ESLint con `eslint-config-next` |
+
+`npm run dev` y `npm run start` pasan por [`scripts/serve.mjs`](./scripts/serve.mjs), que lee `.env` y traduce `FE_PORT` a `--port`. También admite `npm run dev -- --port 4000`.
 
 ## Variables de entorno
 
-Copia `.env.example` a `.env.local` y completa los valores:
+Copia `.env.example` a `.env` y ajusta los valores:
 
 | Variable | Descripción |
 | --- | --- |
-| `API_URL` | URL base del backend que consume [`lib/api.ts`](./lib/api.ts). Los endpoints se resuelven como rutas relativas (por ejemplo `api/auth/login`). |
+| `BACKEND_URL` | URL base del backend que consume [`lib/env.ts`](./lib/env.ts). Admite protocolo, puerto y una ruta base (`http://localhost:8000`, `http://localhost:8000/v1`). |
+| `API_URL` | Alias heredado de `BACKEND_URL`; solo se usa si `BACKEND_URL` no está definida. |
+| `FE_PORT` | Puerto del frontend. `npm run dev` y `npm run start` lo aplican con `--port` vía [`scripts/serve.mjs`](./scripts/serve.mjs). |
+| `FE_HOST` | Opcional. Interfaz de escucha (por defecto `localhost`). |
+
+Usa **un solo archivo `.env`**. Si existe `.env.local`, Next.js le da prioridad y los cambios hechos en `.env` no se aplican: el puerto del backend parecería «no cambiar». Cambiar `BACKEND_URL` o `FE_PORT` requiere reiniciar el servidor.
+
+
 
 ## Estructura del proyecto
 
@@ -80,7 +89,7 @@ proxy.ts              Protección de rutas (convención `proxy` de Next.js)
 ## Autenticación
 
 - [`app/actions/auth.ts`](./app/actions/auth.ts) expone `login` y `logout` como Server Actions.
-- `login` valida correo y contraseña, llama a `POST {API_URL}/api/auth/login` (ruta declarada en [`lib/api-routes.ts`](./lib/api-routes.ts)) y guarda el token en una cookie `httpOnly` desde [`lib/session.ts`](./lib/session.ts).
+- `login` valida correo y contraseña, llama a `POST {BACKEND_URL}/api/auth/login` (ruta declarada en [`lib/api-routes.ts`](./lib/api-routes.ts)) y guarda el token en una cookie `httpOnly` desde [`lib/session.ts`](./lib/session.ts).
 - La opción **Mantener la sesión iniciada** decide si la cookie expira a los 7 días o al cerrar el navegador.
 - [`proxy.ts`](./proxy.ts) hace un chequeo optimista de la cookie: sin sesión redirige a `/login`; con sesión, visitar `/login` redirige a `/`.
 - Los errores del backend se muestran en el formulario con un `Alert` destructivo, conservando el correo ingresado.

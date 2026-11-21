@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { getOccupancyReport } from "@/lib/api/reports";
 import { describeApiError, logActionError } from "@/lib/actions/errors";
 import { requireRole } from "@/lib/auth-guard";
+import { todayIso } from "@/lib/date-range";
 import { formatDate } from "@/lib/format";
 import type { OccupancyReportRow } from "@/lib/types/reports";
 
@@ -34,6 +35,11 @@ function display(value: string | number | undefined): string {
   return value === undefined ? "—" : String(value);
 }
 
+/** Primer día del mes de `iso` (`2026-11-21` → `2026-11-01`). */
+function firstDayOfMonth(iso: string): string {
+  return `${iso.slice(0, 8)}01`;
+}
+
 export default async function OccupancyReportPage({
   searchParams,
 }: {
@@ -42,27 +48,25 @@ export default async function OccupancyReportPage({
   await requireRole(["RECEPCION_ADMIN"]);
 
   const params = await searchParams;
-  const startDate = singleParam(params.startDate);
-  const endDate = singleParam(params.endDate);
+  // Por defecto: el mes en curso, para que la pantalla cargue con datos.
+  const endDate = singleParam(params.endDate) || todayIso();
+  const startDate = singleParam(params.startDate) || firstDayOfMonth(endDate);
   const classId = singleParam(params.classId);
-  const canFetch = Boolean(startDate && endDate);
 
   let rows: OccupancyReportRow[] = [];
   let error: string | null = null;
 
-  if (canFetch) {
-    if (!validDateRange(startDate, endDate)) {
-      error = "Indica un rango de fechas válido: inicio antes o igual al fin.";
-    } else {
-      try {
-        rows = await getOccupancyReport(startDate, endDate, classId);
-      } catch (cause) {
-        logActionError("GET /api/reports/occupancy", cause);
-        error = describeApiError(
-          cause,
-          "No pudimos cargar el reporte de ocupación."
-        );
-      }
+  if (!validDateRange(startDate, endDate)) {
+    error = "Indica un rango de fechas válido: inicio antes o igual al fin.";
+  } else {
+    try {
+      rows = await getOccupancyReport(startDate, endDate, classId);
+    } catch (cause) {
+      logActionError("GET /api/reports/occupancy", cause);
+      error = describeApiError(
+        cause,
+        "No pudimos cargar el reporte de ocupación."
+      );
     }
   }
 
@@ -113,7 +117,7 @@ export default async function OccupancyReportPage({
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Ocupación de clases"
-        description="Consulta la ocupación por clase dentro del rango seleccionado."
+        description="Ocupación por clase del mes en curso, o del rango que elijas."
       />
 
       <form method="get" className="bg-card flex flex-wrap items-end gap-3 rounded-xl border p-4">
@@ -139,10 +143,10 @@ export default async function OccupancyReportPage({
 
       {error ? (
         <RetryError description={error} />
-      ) : !canFetch ? (
+      ) : rows.length === 0 ? (
         <EmptyState
-          title="Selecciona un periodo"
-          description="Ingresa las fechas inicial y final para consultar la ocupación."
+          title="Sin clases en el periodo"
+          description="No hay sesiones registradas en el rango seleccionado. Ajusta las fechas o elige otro mes."
         />
       ) : (
         <DataTable

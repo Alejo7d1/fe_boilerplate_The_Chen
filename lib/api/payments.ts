@@ -109,6 +109,42 @@ export async function listPendingCharges(
   return normalizePendingChargesPage(payload, query);
 }
 
+/** El backend pagina de 10 y acepta hasta 50 filas por página. */
+const PENDING_PAGE_LIMIT = 50;
+/** Tope defensivo para agregaciones: evita recorrer una cartera enorme. */
+const PENDING_MAX_CHARGES = 500;
+
+/**
+ * Recorre la paginación de `/api/charges/pending` para obtener la cartera
+ * completa del filtro. Se usa para agregados (total, por miembro, antigüedad).
+ */
+export async function listAllPendingCharges(
+  query: Omit<PendingChargesQuery, "page" | "limit"> = {}
+): Promise<PendingCharge[]> {
+  const charges: PendingCharge[] = [];
+
+  const first = await listPendingCharges({
+    ...query,
+    page: 1,
+    limit: PENDING_PAGE_LIMIT,
+  });
+  charges.push(...first.charges);
+
+  let page = 1;
+  while (page < first.totalPages && charges.length < PENDING_MAX_CHARGES) {
+    page += 1;
+    const next = await listPendingCharges({
+      ...query,
+      page,
+      limit: PENDING_PAGE_LIMIT,
+    });
+    if (next.charges.length === 0) break;
+    charges.push(...next.charges);
+  }
+
+  return charges.slice(0, PENDING_MAX_CHARGES);
+}
+
 /** El comprobante puede venir envuelto en `receipt` o `data`. */
 function unwrapReceipt(payload: unknown): unknown {
   if (payload && typeof payload === "object" && !Array.isArray(payload)) {

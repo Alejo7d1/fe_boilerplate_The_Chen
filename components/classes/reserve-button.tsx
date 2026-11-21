@@ -12,12 +12,15 @@ import type { ClassSession } from "@/lib/types/classes";
 export interface ReserveButtonProps {
   session: ClassSession;
   freeSeats: number;
+  /** Ya existe una reserva vigente del miembro para esta clase. */
+  alreadyReserved?: boolean;
   className?: string;
 }
 
 export function ReserveButton({
   session,
   freeSeats,
+  alreadyReserved = false,
   className,
 }: ReserveButtonProps) {
   const router = useRouter();
@@ -25,7 +28,7 @@ export function ReserveButton({
   const [submitting, setSubmitting] = useState(false);
 
   const soldOut = freeSeats <= 0;
-  const disabled = soldOut || pending || submitting;
+  const disabled = soldOut || alreadyReserved || pending || submitting;
 
   function handleReserve() {
     if (disabled) return;
@@ -57,13 +60,18 @@ export function ReserveButton({
     <Button
       type="button"
       size="sm"
+      variant={alreadyReserved ? "outline" : "default"}
       onClick={handleReserve}
       disabled={disabled}
       aria-busy={pending || submitting}
       className={className}
     >
       {pending || submitting ? <Spinner aria-label="Reservando" /> : null}
-      {soldOut ? "Sin cupos" : "Reservar"}
+      {alreadyReserved
+        ? "Ya reservado"
+        : soldOut
+          ? "Sin cupos"
+          : "Reservar"}
     </Button>
   );
 }

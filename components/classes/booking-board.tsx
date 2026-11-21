@@ -41,10 +41,20 @@ export interface BookingBoardProps {
   sessions: ClassSession[];
   /** Ventana de 7 días calculada en el servidor para evitar desajustes de hidratación. */
   days: IsoDate[];
+  /** Clases con una reserva vigente del miembro: el botón queda en «Ya reservado». */
+  reservedSessionIds?: readonly string[];
 }
 
-export function BookingBoard({ sessions, days }: BookingBoardProps) {
+export function BookingBoard({
+  sessions,
+  days,
+  reservedSessionIds = [],
+}: BookingBoardProps) {
   const byDate = useMemo(() => groupByDate(sessions), [sessions]);
+  const reserved = useMemo(
+    () => new Set(reservedSessionIds),
+    [reservedSessionIds]
+  );
 
   // Abrir en hoy si tiene clases; si no, en el primer día con horarios.
   const [activeDay, setActiveDay] = useState<IsoDate>(
@@ -269,6 +279,7 @@ export function BookingBoard({ sessions, days }: BookingBoardProps) {
                         <ReserveButton
                           session={session}
                           freeSeats={free}
+                          alreadyReserved={reserved.has(session.id)}
                           className="mt-auto w-full"
                         />
                       </CardContent>

@@ -3,6 +3,7 @@
 // Solo filtra, ordena y deriva cifras de lo que devuelve la API: no agrega datos.
 
 import { describeApiError, logActionError } from "@/lib/actions/errors";
+import { isSessionBookable } from "@/lib/classes";
 import { todayIso } from "@/lib/date-range";
 import type { ClassReservation, ClassSession } from "@/lib/types/classes";
 import type { IsoDate, IsoTime } from "@/lib/types/common";
@@ -36,10 +37,6 @@ function byDateTime(a: Scheduled, b: Scheduled): number {
   return `${a.date}T${a.startTime}`.localeCompare(`${b.date}T${b.startTime}`);
 }
 
-function isCancelledStatus(status: string): boolean {
-  return status.trim().toLowerCase().includes("cancel");
-}
-
 /** Reservas vigentes desde hoy, ordenadas por fecha y hora. */
 export function upcomingReservations(
   reservations: readonly ClassReservation[],
@@ -54,14 +51,14 @@ export function upcomingReservations(
   return limit === undefined ? result : result.slice(0, limit);
 }
 
-/** Sesiones no canceladas desde hoy, ordenadas por fecha y hora. */
+/** Sesiones disponibles desde hoy, ordenadas por fecha y hora. */
 export function upcomingSessions(
   sessions: readonly ClassSession[],
   limit?: number
 ): ClassSession[] {
-  const today = todayIso();
+  const now = new Date();
   const result = sessions
-    .filter((session) => !isCancelledStatus(session.status) && session.date >= today)
+    .filter((session) => isSessionBookable(session, now))
     .sort(byDateTime);
   return limit === undefined ? result : result.slice(0, limit);
 }
