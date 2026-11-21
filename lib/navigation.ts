@@ -1,0 +1,186 @@
+// lib/navigation.ts
+// Navegación del dashboard. Cada historia del sprint activo tiene su entrada.
+// `available` se activa cuando la historia se implementa en su fase.
+
+import {
+  CalendarCheck,
+  CalendarClock,
+  CalendarDays,
+  ChartBar,
+  ClipboardCheck,
+  ClipboardList,
+  ChartNoAxesCombined,
+  CreditCard,
+  Dumbbell,
+  LayoutDashboard,
+  LineChart,
+  Star,
+  Receipt,
+  Tags,
+  UserPlus,
+  Users,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
+
+import type { UserRole } from "@/lib/types/auth";
+
+export interface NavItem {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+  roles: UserRole[];
+  available: boolean;
+}
+
+export const NAV_ITEMS: readonly NavItem[] = [
+  {
+    title: "Panel",
+    href: "/",
+    icon: LayoutDashboard,
+    roles: ["MIEMBRO", "ENTRENADOR", "RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Equipos",
+    href: "/equipment",
+    icon: Dumbbell,
+    roles: ["MIEMBRO", "ENTRENADOR", "RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Miembros",
+    href: "/admin/members",
+    icon: UserPlus,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Mi membresía",
+    href: "/membership",
+    icon: CreditCard,
+    roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Compra y renovación",
+    href: "/membership/purchase",
+    icon: ClipboardList,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Planes",
+    href: "/admin/plans",
+    icon: Tags,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Reservar clase",
+    href: "/classes/book",
+    icon: CalendarCheck,
+    roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Mis reservas",
+    href: "/my-reservations",
+    icon: CalendarDays,
+    roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Clases",
+    href: "/admin/classes",
+    icon: ClipboardList,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Máquinas",
+    href: "/admin/equipment",
+    icon: Wrench,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Mi disponibilidad",
+    href: "/trainer/availability",
+    icon: CalendarClock,
+    roles: ["ENTRENADOR"],
+    available: true,
+  },
+  {
+    title: "Rutinas",
+    href: "/trainer/routines",
+    icon: ClipboardCheck,
+    roles: ["ENTRENADOR"],
+    available: true,
+  },
+  {
+    title: "Mi progreso",
+    href: "/progress",
+    icon: LineChart,
+    roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Reseñas",
+    href: "/reviews",
+    icon: Star,
+    roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Promedios de reseñas",
+    href: "/admin/reports/reviews",
+    icon: ChartBar,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Sesión personal",
+    href: "/trainers/book",
+    icon: Users,
+    roles: ["MIEMBRO"],
+    available: true,
+  },
+  {
+    title: "Check-in",
+    href: "/admin/check-in",
+    icon: ClipboardList,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Ingresos y renovación",
+    href: "/admin/reports/revenue",
+    icon: ChartNoAxesCombined,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Ocupación de clases",
+    href: "/admin/reports/occupancy",
+    icon: ChartNoAxesCombined,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+  {
+    title: "Cobros pendientes",
+    href: "/admin/pending-charges",
+    icon: Receipt,
+    roles: ["RECEPCION_ADMIN"],
+    available: true,
+  },
+] as const;
+
+/**
+ * Sin rol identificado no se muestra ninguna sección: el sidebar informa
+ * que la sesión no trae el claim `role`.
+ */
+export function getNavItems(role?: UserRole): NavItem[] {
+  if (!role) return [];
+  return NAV_ITEMS.filter((item) => item.roles.includes(role));
+}
