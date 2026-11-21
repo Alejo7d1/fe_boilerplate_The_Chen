@@ -23,6 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  compareSessionsNewestFirst,
+} from "@/lib/classes";
 import { formatDate, formatDuration } from "@/lib/format";
 import { classTone } from "@/lib/status";
 import type { ClassSession } from "@/lib/types/classes";
@@ -55,9 +58,7 @@ export function AdminClassesTable({ sessions, trainers }: AdminClassesTableProps
         const matchesTerm = !term || session.name.toLowerCase().includes(term);
         return matchesDate && matchesTrainer && matchesTerm;
       })
-      .sort((a, b) =>
-        `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`)
-      );
+      .sort(compareSessionsNewestFirst);
   }, [sessions, dateFilter, trainerFilter, query]);
 
   function openCreate() {

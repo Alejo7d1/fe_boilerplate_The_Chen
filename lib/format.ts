@@ -1,15 +1,22 @@
 // lib/format.ts
-// Formato de presentación. Cambiar idioma o moneda del club es editar estas dos constantes.
+// Formato de presentación. Cambiar idioma o moneda del club es editar estas constantes.
 
 import { isoToDate, todayIso } from "@/lib/date-range";
 import type { IsoDate, IsoTime } from "@/lib/types/common";
 
 export const LOCALE = "es-GT";
-export const CURRENCY = "GTQ";
+export const CURRENCY = "USD";
 
-const currencyFormatter = new Intl.NumberFormat(LOCALE, {
+/**
+ * La moneda se pinta con el símbolo «$». `es-GT` con USD muestra «USD 1.00»,
+ * por eso el formateador de moneda usa una variante que sí devuelve «$1.00».
+ */
+const CURRENCY_LOCALE = "en-US";
+
+const currencyFormatter = new Intl.NumberFormat(CURRENCY_LOCALE, {
   style: "currency",
   currency: CURRENCY,
+  currencyDisplay: "narrowSymbol",
 });
 
 const dateFormatter = new Intl.DateTimeFormat(LOCALE, {
@@ -38,6 +45,21 @@ const monthFormatter = new Intl.DateTimeFormat(LOCALE, {
 
 export function formatCurrency(value: number): string {
   return currencyFormatter.format(value);
+}
+
+const countFormatter = new Intl.NumberFormat(LOCALE);
+
+export function formatCount(value: number): string {
+  return countFormatter.format(value);
+}
+
+/** Porcentaje ya expresado en escala 0–100 («62.5 %» → «62.5%»). */
+export function formatPercent(value: number, fractionDigits = 1): string {
+  const formatter = new Intl.NumberFormat(LOCALE, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: fractionDigits,
+  });
+  return `${formatter.format(value)}%`;
 }
 
 export function formatDate(iso: IsoDate): string {

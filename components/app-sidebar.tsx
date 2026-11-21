@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Dumbbell } from "lucide-react";
 
 import {
   Sidebar,
@@ -29,17 +29,22 @@ export function AppSidebar({ role }: { role?: UserRole }) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" tooltip="The Chen">
+            <SidebarMenuButton asChild size="lg" tooltip="Chen Fitness Club">
               <Link href="/">
-                <span className="from-primary to-info text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br shadow-sm">
-                  <Dumbbell className="size-4" />
-                </span>
+                <Image
+                  src="/icon_chen.png"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0 object-contain"
+                  preload
+                />
                 <span className="flex flex-col gap-0.5 leading-none">
                   <span className="font-heading from-primary to-info bg-linear-to-r bg-clip-text font-semibold text-transparent">
-                    The Chen
+                    Chen Fitness Club
                   </span>
                   <span className="text-muted-foreground text-xs">
-                    Fitness club
+                    Sistema de gestión
                   </span>
                 </span>
               </Link>

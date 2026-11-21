@@ -1,5 +1,6 @@
 // lib/api.ts
-import { getSession } from "@/lib/session"; 
+import { buildApiUrl, logApiTargetOnce } from "@/lib/env";
+import { getSession } from "@/lib/session";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -9,7 +10,8 @@ export class ApiError extends Error {
 
 /**
  * El backend de pruebas responde `{ "error": "..." }`; otros entornos usan
- * `message`. Se aceptan ambos para no perder el mensaje original.
+ * `message`. Los errores de validación (`400`) traen `message` como array de
+ * strings. Se aceptan todas las formas para no perder el mensaje original.
  */
 export function errorMessageFrom(body: unknown, status: number): string {
   if (body && typeof body === "object") {
@@ -17,6 +19,13 @@ export function errorMessageFrom(body: unknown, status: number): string {
     for (const key of ["message", "error", "detail"]) {
       const value = record[key];
       if (typeof value === "string" && value.trim()) return value.trim();
+      if (Array.isArray(value)) {
+        const parts = value
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean);
+        if (parts.length > 0) return parts.join(" ");
+      }
     }
   }
   return `Error HTTP ${status}`;
@@ -26,9 +35,6 @@ export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit & { requireAuth?: boolean } = {}
 ): Promise<T> {
-  const apiUrl = process.env.API_URL;
-  if (!apiUrl) throw new Error("Falta la variable de entorno API_URL.");
-
   const { requireAuth = true, headers, ...rest } = options;
   const authHeaders: Record<string, string> = {};
 
@@ -39,7 +45,9 @@ export async function apiFetch<T>(
     }
   }
 
-  const url = new URL(endpoint.replace(/^\//, ""), apiUrl.replace(/\/?$/, "/"));
+  const url = buildApiUrl(endpoint);
+  logApiTargetOnce();
+
   const res = await fetch(url, {
     ...rest,
     headers: {
