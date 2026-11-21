@@ -1,6 +1,7 @@
 import { LogOut } from "lucide-react";
 
 import { logout } from "@/app/actions/auth";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -48,6 +49,7 @@ export function AppHeader({
       </div>
 
       <div className="ml-auto flex items-center gap-1.5">
+        <NotificationBell />
         <ThemeToggle />
         <form action={logout}>
           <Button type="submit" variant="ghost" size="sm">
