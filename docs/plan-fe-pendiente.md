@@ -99,6 +99,16 @@ Subtarea a borrar en Jira: **TSK-84** (FE-10.2, absorbida por FE-10.1).
 
 ## EP6 · Planes de entrenamiento y seguimiento — `feature/ep6-planes-entrenamiento`
 
+> **Estado:** implementado y probado contra la API de pruebas el 2026-11-20. Contrato en
+> [`docs/api-contracts-ep6-training.md`](./api-contracts-ep6-training.md). Se confirman los
+> dos bloqueos previstos: el entrenador recibe `403` en `GET /api/users` (selector con
+> captura manual del identificador) y no existe `GET` del historial de progreso (`404` se
+> trata como «sin historial», con el gráfico SVG y la tabla listos para cuando exista).
+>
+> **Seguimiento en Jira:** **TSK-136 · BE-12.2** — autorizar
+> `GET /api/users?role=MIEMBRO&search=` al rol `ENTRENADOR` (bloquea a TSK-91 · FE-12.1).
+> Al estar disponible se retira la captura manual del selector de clientes.
+
 | Historia | Jira | Ruta | Rol |
 | --- | --- | --- | --- |
 | H12 · Asignación de rutinas | TSK-31 | `/trainer/routines` | `ENTRENADOR` |

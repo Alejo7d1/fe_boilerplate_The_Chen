@@ -6,6 +6,7 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarDays,
+  ClipboardCheck,
   ClipboardList,
   CreditCard,
   Dumbbell,
