@@ -1,11 +1,11 @@
 {
-  "name": "si_fe_boilerplate",
-  "version": "0.1.0",
+  "name": "Chen Fitness Club webapp",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/serve.mjs dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/serve.mjs start",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest"

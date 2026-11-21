@@ -17,4 +17,20 @@ describe("errorMessageFrom", () => {
     expect(errorMessageFrom({}, 500)).toBe("Error HTTP 500");
     expect(errorMessageFrom(undefined, 400)).toBe("Error HTTP 400");
   });
+
+  it("une los mensajes de validación enviados como array", () => {
+    expect(
+      errorMessageFrom(
+        {
+          statusCode: 400,
+          message: [
+            "title should not be empty",
+            "property recipients should not exist",
+          ],
+          error: "Bad Request",
+        },
+        400
+      )
+    ).toBe("title should not be empty property recipients should not exist");
+  });
 });

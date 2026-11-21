@@ -27,6 +27,7 @@ import {
 import { listClassSessions } from "@/lib/api/classes";
 import { getMyMembership } from "@/lib/api/memberships";
 import { listMyReservations } from "@/lib/api/reservations";
+import { activeReservedSessionIds } from "@/lib/classes";
 import {
   readSettled,
   upcomingReservations,
@@ -80,6 +81,7 @@ export async function MemberDashboard({ email }: MemberDashboardProps) {
   const nextReservations = reservations.data
     ? upcomingReservations(reservations.data, 4)
     : [];
+  const reservedSessionIds = activeReservedSessionIds(reservations.data ?? []);
   const openSessions = sessions.data
     ? upcomingSessions(sessions.data).filter((session) => session.availableSpots > 0)
     : [];
@@ -93,7 +95,8 @@ export async function MemberDashboard({ email }: MemberDashboardProps) {
             {greeting ? `Hola, ${greeting}` : "Hola"}
           </h1>
           <p className="text-muted-foreground text-sm">
-            Este es tu espacio en The Chen: tu carnet, tus clases y tus reservas.
+            Este es tu espacio en Chen Fitness Club: tu carnet, tus clases y tus
+            reservas.
           </p>
         </div>
         <Button asChild size="sm">
@@ -231,6 +234,7 @@ export async function MemberDashboard({ email }: MemberDashboardProps) {
                   <ReserveButton
                     session={session}
                     freeSeats={session.availableSpots}
+                    alreadyReserved={reservedSessionIds.has(session.id)}
                   />
                 </div>
               </li>

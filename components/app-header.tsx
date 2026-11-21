@@ -49,7 +49,9 @@ export function AppHeader({
       </div>
 
       <div className="ml-auto flex items-center gap-1.5">
-        <NotificationBell />
+        <NotificationBell
+          canSend={role === "RECEPCION_ADMIN" || role === "ENTRENADOR"}
+        />
         <ThemeToggle />
         <form action={logout}>
           <Button type="submit" variant="ghost" size="sm">

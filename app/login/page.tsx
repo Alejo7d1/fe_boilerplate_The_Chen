@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import {
   CalendarCheck,
   CreditCard,
-  Dumbbell,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -52,12 +52,17 @@ export default function LoginPage() {
         />
 
         <div className="relative flex items-center gap-3">
-          <span className="from-primary to-info text-primary-foreground flex size-10 items-center justify-center rounded-xl bg-linear-to-br shadow-sm">
-            <Dumbbell className="size-5" />
-          </span>
+          <Image
+            src="/icon_chen.png"
+            alt=""
+            width={40}
+            height={40}
+            className="size-10 shrink-0 object-contain"
+            preload
+          />
           <span className="flex flex-col leading-tight">
-            <span className="font-heading text-lg font-semibold">The Chen</span>
-            <span className="text-muted-foreground text-xs">Fitness club</span>
+            <span className="font-heading text-lg font-semibold">Chen</span>
+            <span className="text-muted-foreground text-xs">Fitness Club</span>
           </span>
           <span className="border-primary/20 bg-background/70 text-muted-foreground ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium backdrop-blur">
             <Sparkles className="text-primary size-3" aria-hidden />
@@ -96,7 +101,7 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        <div className="relative border-t pt-6">
+        <div className="relative flex flex-col gap-4 border-t pt-6">
           <p className="text-muted-foreground text-xs leading-relaxed">
             ¿No recuerdas tus datos? Pídelos en recepción y te ayudamos a
             entrar.
@@ -107,13 +112,18 @@ export default function LoginPage() {
       <section className="flex flex-1 flex-col">
         <header className="flex items-center justify-between px-4 py-4 sm:px-6">
           <span className="flex items-center gap-2 lg:hidden">
-            <span className="from-primary to-info text-primary-foreground flex size-8 items-center justify-center rounded-lg bg-linear-to-br">
-              <Dumbbell className="size-4" />
-            </span>
+            <Image
+              src="/icon_chen.png"
+              alt=""
+              width={32}
+              height={32}
+              className="size-8 shrink-0 object-contain"
+              preload
+            />
             <span className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">The Chen</span>
+              <span className="text-sm font-semibold">Chen</span>
               <span className="text-muted-foreground text-[11px]">
-                Fitness club
+                Fitness Club
               </span>
             </span>
           </span>
@@ -140,7 +150,7 @@ export default function LoginPage() {
             </Card>
 
             <p className="text-muted-foreground text-center text-[11px] tracking-[0.14em] uppercase">
-              The Chen · Fitness club
+              Chen Fitness Club
             </p>
           </div>
         </main>

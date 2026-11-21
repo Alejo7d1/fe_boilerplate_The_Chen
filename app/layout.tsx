@@ -19,11 +19,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "The Chen | Fitness club",
-    template: "%s | The Chen",
+    default: "Chen Fitness Club",
+    template: "%s | Chen Fitness Club",
   },
   description:
-    "Sistema de gestión de The Chen Fitness club: miembros, clases, entrenadores y pagos.",
+    "Sistema de gestión de Chen Fitness Club: miembros, clases, entrenadores y pagos.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

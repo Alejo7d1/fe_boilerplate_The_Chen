@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Check, Loader2 } from "lucide-react";
+import { Bell, Check, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   listNotificationsAction,
   markNotificationAsReadAction,
 } from "@/app/actions/notifications";
+import { NotificationComposer } from "@/components/notifications/notification-composer";
 import {
   Popover,
   PopoverContent,
@@ -32,13 +33,15 @@ function formatNotificationDate(value: string): string {
   }).format(date);
 }
 
-export function NotificationBell() {
+export function NotificationBell({ canSend = false }: { canSend?: boolean }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | "all" | null>(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
 
   function applyPage(nextPage: number, data: { notifications: Notification[]; unreadCount: number }) {
     setPage(nextPage);
@@ -112,28 +115,29 @@ export function NotificationBell() {
   }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label={
-            unreadCount > 0
-              ? `Notificaciones, ${unreadCount} sin leer`
-              : "Notificaciones"
-          }
-          className="relative"
-        >
-          <Bell />
-          {unreadCount > 0 ? (
-            <span className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          ) : null}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-96 max-w-[calc(100vw-2rem)]">
+    <>
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={
+              unreadCount > 0
+                ? `Notificaciones, ${unreadCount} sin leer`
+                : "Notificaciones"
+            }
+            className="relative"
+          >
+            <Bell />
+            {unreadCount > 0 ? (
+              <span className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            ) : null}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-96 max-w-[calc(100vw-2rem)]">
         <PopoverHeader className="flex-row items-center justify-between">
           <div>
             <PopoverTitle>Notificaciones</PopoverTitle>
@@ -228,7 +232,34 @@ export function NotificationBell() {
             ) : null}
           </div>
         )}
-      </PopoverContent>
-    </Popover>
+
+        {canSend ? (
+          <div className="border-t pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                setPopoverOpen(false);
+                setComposerOpen(true);
+              }}
+            >
+              <Send />
+              Enviar aviso
+            </Button>
+          </div>
+        ) : null}
+        </PopoverContent>
+      </Popover>
+
+      {composerOpen ? (
+        <NotificationComposer
+          open
+          onOpenChange={setComposerOpen}
+          onSent={() => void load(1)}
+        />
+      ) : null}
+    </>
   );
 }

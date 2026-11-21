@@ -2,6 +2,9 @@
 
 Fuente de verdad de endpoints y roles: [`lib/api-routes.ts`](../lib/api-routes.ts) junto con la tabla de endpoints de este documento. Las rutas de backend **no** se escriben a mano en acciones, páginas ni componentes.
 
+Para el detalle de integración que necesita el equipo de backend (request/response por ruta, campos
+obligatorios, códigos de estado y huecos de contrato), ver [`docs/backend-routes.md`](./backend-routes.md).
+
 ## Rutas de páginas
 
 Las páginas usan nombres en inglés ([`decisiones.md`](../decisiones.md)). Las rutas descritas en Jira estaban en español, por lo que se tradujeron:
@@ -47,6 +50,38 @@ La navegación se define en [`lib/navigation.ts`](../lib/navigation.ts). Una ent
 | Entrenadores | `POST` | `/api/personal-sessions` | `MIEMBRO` |
 | Pagos | `GET` | `/api/charges/pending` | `RECEPCION_ADMIN` |
 | Pagos | `POST` | `/api/payments/process` | `MIEMBRO` |
+| Notificaciones | `GET` | `/api/notifications/me?page=<n>` | Autenticados |
+| Notificaciones | `PATCH` | `/api/notifications/:id/read` | Autenticados |
+| Notificaciones | `POST` | `/api/notifications/send` | `RECEPCION_ADMIN` · `ENTRENADOR` |
+
+### Notificaciones · despacho manual
+
+El envío manual sigue el contrato de [`notifications-send.md`](../notifications-send.md):
+el cuerpo lleva **exactamente** `recipientIds`, `title`, `message`, `sourceModule` y,
+opcionalmente, `referenceId`. El backend rechaza propiedades extra con `400` y no hay
+tokens compartidos entre destinatarios: cada uno recibe su propia notificación.
+
+- La campana del header ([`components/notifications/notification-bell.tsx`](../components/notifications/notification-bell.tsx))
+  muestra el historial y, para `RECEPCION_ADMIN` y `ENTRENADOR`, el botón «Enviar aviso».
+- `ENTRENADOR` solo puede notificar a sus miembros; el `403` del backend se muestra tal cual.
+- No se usa para cancelar clases: `PATCH /api/classes/:id/cancel` ya avisa a los reservantes.
+
+### Ingresos y renovación · datos del panel
+
+`/admin/reports/revenue` no tiene un endpoint propio: el panel combina los existentes y se
+degrada por bloque si uno falla. Las agregaciones viven en [`lib/revenue.ts`](../lib/revenue.ts).
+
+| Bloque | Endpoint | Cómo se usa |
+| --- | --- | --- |
+| Ingresos, pagos, renovaciones y tasa | `GET /api/reports/financial?startDate&endDate` | Cifras del periodo; el ticket medio se deriva de `totalRevenue / paymentCount`. |
+| Cartera pendiente | `GET /api/charges/pending` | Se recorre la paginación (50 por página, tope 500) con [`listAllPendingCharges`](../lib/api/payments.ts) para total, por miembro, por concepto y antigüedad. |
+| Actividad del periodo | `GET /api/reports/occupancy?startDate&endDate` | Clases, cupos, reservados y ocupación media. |
+| Planes vigentes | `GET /api/plans` | Precio llevado a 30 días (`price / (durationDays / 30)`) para comparar duraciones distintas. |
+| Miembros registrados | `GET /api/users?role=MIEMBRO` | Denominador del ingreso por miembro. |
+
+La antigüedad se agrupa por días desde `dueDate` (el backend usa la fecha de emisión) en
+`Hasta 7`, `8 a 15`, `16 a 30` y `Más de 30 días`.
+
 
 ## Tipos compartidos
 
@@ -59,6 +94,7 @@ La navegación se define en [`lib/navigation.ts`](../lib/navigation.ts). Una ent
 | Clases y reservas | [`lib/types/classes.ts`](../lib/types/classes.ts) |
 | Entrenadores y disponibilidad | [`lib/types/trainers.ts`](../lib/types/trainers.ts) |
 | Pagos | [`lib/types/payments.ts`](../lib/types/payments.ts) |
+| Notificaciones | [`lib/types/notifications.ts`](../lib/types/notifications.ts) |
 
 ## Capa de adaptadores (Fases 1, 2 y 3)
 
